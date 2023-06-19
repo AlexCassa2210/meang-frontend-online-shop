@@ -1,0 +1,18 @@
+<!-- Sidebar-->
+<div class="border-right bg-light" id="sidebar-wrapper">
+  <div class="sidebar-heading text-center" style="font-size: 22px;">
+    <a [routerLink]="['/home']" routerLinkActive="router-link-active" >Gamezonia</a>
+  </div>
+  <div class="list-group list-group-flush">
+    <a
+      class="list-group-item list-group-item-action list-group-item-light p-3"
+      [routerLink]="['/admin']" routerLinkActive="router-link-active" 
+      ><i class="fa fa-solid fa-pager"></i> Dashboard</a
+    >
+    <a
+      class="list-group-item list-group-item-action list-group-item-light p-3"
+      [routerLink]="['/admin/users']" routerLinkActive="router-link-active" 
+      ><i class="fa fa-solid fa-id-card"></i> Users </a
+    >
+  </div>
+</div>

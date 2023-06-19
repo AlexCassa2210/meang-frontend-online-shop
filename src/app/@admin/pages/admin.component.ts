@@ -5,11 +5,11 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent {
+  toggledValue = true;
 
-  constructor() { }
-
-  ngOnInit(): void {
+  toggled($event){
+    this.toggledValue = $event;
   }
 
 }
