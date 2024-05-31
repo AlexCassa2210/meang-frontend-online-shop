@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdminModule } from './@admin/pages/admin.module';
 import { PublicModule } from './@public/pages/public.module';
+import { GraphqlModule } from '@graphql/modules/graphql.module';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { PublicModule } from './@public/pages/public.module';
     BrowserModule,
     AdminModule,
     PublicModule, //AdminModule y Public deben ir por encima de AppRoutingModule por el árbol
-    AppRoutingModule
+    AppRoutingModule,
+    GraphqlModule
   ],
   providers: [],
   bootstrap: [AppComponent]
