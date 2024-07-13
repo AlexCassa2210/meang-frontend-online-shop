@@ -24,6 +24,13 @@ const routes: Routes = [
             (m) => m.UsersModule
           ),
       },
+      {
+        path: 'genres',
+        loadChildren: () =>
+          import('./genres/genres.module').then(
+            (m) => m.GenresModule
+          ),
+      },
     ],
   },
 ];

@@ -14,12 +14,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.login('alexcascante.689@yahoo.com', '1234').subscribe(result => {
-      console.log(result);
     });
 
 
-    this.userApi.getUsers().subscribe( result => {
-      /* console.log(result); */
+    this.userApi.getUsers(1, 1).subscribe( result => {
+      console.log(result);
     });
 
     this.auth.getMe().subscribe( result => {
