@@ -26,7 +26,7 @@ export class ApiService {
 
   protected set(mutation: DocumentNode, variables: object = {}, context: object = {}){
     return this.apollo.mutate({
-      mutation: REGISTER_USER,
+      mutation,
       variables,
       context
     }).pipe(

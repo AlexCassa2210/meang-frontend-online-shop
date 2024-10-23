@@ -31,6 +31,7 @@
     "graphql": "^15.3.0",
     "graphql-tag": "^2.10.3",
     "jwt-decode": "^2.2.0",
+    "package_name": "^1.0.2",
     "rxjs": "~6.5.4",
     "sweetalert2": "^11.11.0",
     "tslib": "^1.10.0",
