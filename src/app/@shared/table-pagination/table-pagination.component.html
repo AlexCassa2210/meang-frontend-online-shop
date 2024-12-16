@@ -4,6 +4,16 @@
 >
   <i class="fas fa-plus-circle"></i> Añadir
 </button>
+<select
+  class="form-select float-right mb-2 mr-2"
+  style="width: auto"
+  [(ngModel)]="filterActiveValues"
+  (ngModelChange)="loadData()"
+>
+  <option [ngValue]="'ALL'">Todos</option>
+  <option [ngValue]="'ACTIVE'">Activos</option>
+  <option [ngValue]="'INACTIVE'">Inactivos</option>
+</select>
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>
@@ -16,7 +26,15 @@
     </thead>
     <tbody>
       <tr *ngFor="let data of data$ | async">
-        <td *ngFor="let val of tableColumns">{{ data[val.property] }}</td>
+        <td *ngFor="let val of tableColumns">
+          <span *ngIf="val.property != 'active'; else activeValue">
+            {{ data[val.property] }}
+          </span>
+          <ng-template #activeValue>
+            <span *ngIf="data[val.property] == true"><i class="fas fa-check-circle"></i></span>
+            <span *ngIf="data[val.property] != true"><i class="fas fa-times-circle"></i></span>
+          </ng-template>
+        </td>
         <td>
           <button
             type="button"
@@ -36,9 +54,20 @@
             type="button"
             class="btn btn-danger"
             (click)="manageAction('block', data)"
+            *ngIf="data['active'] != false; else unblockBtn"
           >
-            <i class="fas fa-lock"></i></button
-          >&nbsp;
+            <i class="fas fa-lock"></i>
+          </button>&nbsp;
+
+          <ng-template #unblockBtn>
+            <button
+            type="button"
+            class="btn btn-danger"
+            (click)="manageAction('unblock', data)"
+          >
+            <i class="fas fa-lock-open"></i>
+          </button>&nbsp;
+          </ng-template>
         </td>
       </tr>
     </tbody>

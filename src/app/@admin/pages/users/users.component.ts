@@ -9,6 +9,7 @@ import { basicAlert } from '@shared/alerts/toast';
 import { TYPE_ALERT } from '@shared/alerts/values.config';
 import { UsersService } from '@core/services/users.service';
 import { UsersAdminService } from './users-admin.service';
+import { ACTIVE_FILTERS } from '@core/constants/filters';
 
 @Component({
   selector: 'app-users',
@@ -23,6 +24,7 @@ export class UsersComponent implements OnInit {
   resultData: IResultData;
   include: boolean;
   columns: Array<ITableColumns>
+  filterActiveValues = ACTIVE_FILTERS.ACTIVE;
 
   constructor(private service: UsersService, private serviceAdmin: UsersAdminService){
 
@@ -57,6 +59,10 @@ export class UsersComponent implements OnInit {
         property: 'role',
         label: 'Rol'
       },
+      {
+        property: 'active',
+        label: 'Activar'
+      }
     ]
   }
 
@@ -80,44 +86,47 @@ private initializeForm(user: any){
   `;
 }
 
-  async takeAction($event) {
-    //Información para las acciones
-    const action = $event[0];
-    const user = $event[1];
-    
-    const html = this.initializeForm(user);
- 
-    //Depende del caso, ejecutar una acción
-    switch (action) {
-      case 'add':
-        this.addForm(html);
-        break;
-      case 'edit':
+async takeAction($event) {
+  // Coger la información para las acciones
+  const action = $event[0];
+  const user = $event[1];
+  // Cogemos el valor por defecto
+  const html = this.initializeForm(user);
+  switch (action) {
+    case 'add':
+      // Añadir el item
+      this.addForm(html);
+      break;
+    case 'edit':
+      this.updateForm(html, user);
+      break;
+    case 'info':
+      const result = await optionsWithDetails(
+        'Detalles',
+        `${user.name} ${user.lastname}<br/>
+        <i class="fas fa-envelope-open-text"></i>&nbsp;&nbsp;${user.email}`,
+        user.active !== false ? 375 : 400,
+        '<i class="fas fa-edit"></i> Editar', // true
+        user.active !== false
+          ? '<i class="fas fa-lock"></i> Bloquear'
+          : '<i class="fas fa-lock-open"></i> Desbloquear'
+      ); // false
+      if (result) {
         this.updateForm(html, user);
-        break;
-      case 'info':
-        const result = await optionsWithDetails(
-          'Detalles',
-          `${user.name} ${user.lastname} </br> 
-            <i class="fas fa-envelope-open-text"></i>&nbsp;&nbsp;${user.email}
-          `,
-          375,
-          '<i class="fas fa-edit"></i> Editar', //true
-          '<i class="fas fa-lock"></i> Bloquear' //False
-        );
-        if (result) {
-          this.updateForm(html, user);
-        } else if (result === false) {
-          this.blockForm(user);
-        }
-        break;
-      case 'block':
-        this.blockForm(user);
-        break;
-      default:
-        break;
-    }
+      } else if (result === false) {
+        this.unblockForm(user, user.active !== false ? false : true);
+      }
+      break;
+    case 'block':
+      this.unblockForm(user, false);
+      break;
+    case 'unblock':
+      this.unblockForm(user, true);
+      break;
+    default:
+      break;
   }
+}
 
   private async addForm(html: string) {
     const result = await formBasicDialog('Añadir usuario', html, 'name');
@@ -131,7 +140,15 @@ private initializeForm(user: any){
       user.active = false;
       this.serviceAdmin.register(user).subscribe((res: any) => {
         if (res.status) {
-          basicAlert(TYPE_ALERT.SUCCESS, res.message);
+          basicAlert(TYPE_ALERT.SUCCESS, res.message);          
+          this.serviceAdmin.sendEmailActive(res.user.id, user.email).subscribe(
+            //da undefined
+            (resEmail: any) => {
+              (resEmail.status) ? 
+              basicAlert(TYPE_ALERT.SUCCESS, res.message) : 
+              basicAlert(TYPE_ALERT.WARNING, res.message);
+            }
+          );
           return;
         }
         basicAlert(TYPE_ALERT.WARNING, res.message);
@@ -161,21 +178,32 @@ private initializeForm(user: any){
     }
   }
 
-  private async blockForm(user: any){
-    const result = await optionsWithDetails(
-      '¿Bloquear?',
-      `Si bloquea el usuario seleccionado, no se mostrará en la lista`,
-      430,
-      'No, no bloquear',
-      'Sí, bloquear'
-    );
-    if(result === false){
-      this.blockUser(user.id);
+  private async unblockForm(user: any, unblock: boolean) {
+    const result = unblock
+      ? await optionsWithDetails(
+          '¿Desbloquear?',
+          `Si desbloqueas el usuario seleccionado, se mostrará en la lista y podrás hacer compras y ver toda la información`,
+          500,
+          'No, no desbloquear',
+          'Si, desbloquear'
+        )
+      : await optionsWithDetails(
+          '¿Bloquear?',
+          `Si bloqueas el usuario seleccionado, no se mostrará en la lista`,
+          430,
+          'No, no bloquear',
+          'Si, bloquear'
+        );
+    if (result === false) {
+      // Si resultado falso, queremos bloquear / desbloquear
+      this.unblockUser(user.id, unblock, true);
     }
   }
 
-  private blockUser(id: string){
-    this.serviceAdmin.block(id).subscribe((res: any) => {
+  private unblockUser(id: string,
+    unblock: boolean = false,
+    admin: boolean = false){
+    this.serviceAdmin.unblock(id, unblock, admin).subscribe((res: any) => {
       if (res.status) {
         basicAlert(TYPE_ALERT.SUCCESS, res.message);
         return;

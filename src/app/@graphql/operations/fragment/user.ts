@@ -9,6 +9,7 @@ fragment UserObject on User{
     registerDate @include(if: $include)
     birthday @include(if: $include)
     role
+    active
   }
 `;
 
