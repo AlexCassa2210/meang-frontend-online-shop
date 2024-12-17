@@ -166,7 +166,6 @@ async takeAction($event) {
     if(result.value){
       const user = result.value;
       user.id = id;
-      console.log(user.id)
       this.serviceAdmin.update(result.value).subscribe((res: any) => {
         if (res.status) {
           basicAlert(TYPE_ALERT.SUCCESS, res.message);
